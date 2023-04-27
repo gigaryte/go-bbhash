@@ -28,7 +28,7 @@ import (
 
 // BBHash represents a computed minimal perfect hash for a given set of keys.
 type BBHash struct {
-	bits  []*bitVector
+	Bits  []*bitVector
 	ranks []uint64
 	salt  uint64
 	g     float64 // gamma - rankvector size expansion factor
