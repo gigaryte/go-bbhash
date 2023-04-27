@@ -2,6 +2,7 @@ module github.com/gigaryte/go-bbhash
 
 go 1.12
 
+
 require (
 	github.com/dchest/siphash v1.2.1
 	github.com/opencoff/go-fasthash v0.0.0-20180406145558-aed761496075
