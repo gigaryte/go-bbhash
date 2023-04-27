@@ -70,17 +70,17 @@ func TestBBMarshal(t *testing.T) {
 	b2, err := UnmarshalBBHash(&buf)
 	assert(err == nil, "unmarshal failed: %s", err)
 
-	assert(len(b.bits) == len(b2.bits), "rank-vector len mismatch (exp %d, saw %d)",
-		len(b.bits), len(b2.bits))
+	assert(len(b.Bits) == len(b2.Bits), "rank-vector len mismatch (exp %d, saw %d)",
+		len(b.Bits), len(b2.Bits))
 
 	assert(len(b.ranks) == len(b2.ranks), "rank-helper len mismatch (exp %d, saw %d)",
 		len(b.ranks), len(b2.ranks))
 
 	assert(b.salt == b2.salt, "salt mismatch (exp %#x, saw %#x)", b.salt, b2.salt)
 
-	for i := range b.bits {
-		av := b.bits[i]
-		bv := b2.bits[i]
+	for i := range b.Bits {
+		av := b.Bits[i]
+		bv := b2.Bits[i]
 
 		assert(av.Size() == bv.Size(), "level-%d, bitvector len mismatch (exp %d, saw %d)",
 			i, av.Size(), bv.Size())
