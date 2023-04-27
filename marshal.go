@@ -39,7 +39,7 @@ func (bb *BBHash) MarshalBinary(w io.Writer) error {
 	le.PutUint64(x[:], 1) // version 1
 	b.Write(x[:])
 
-	le.PutUint64(x[:], uint64(len(bb.bits)))
+	le.PutUint64(x[:], uint64(len(bb.Bits)))
 	b.Write(x[:])
 
 	le.PutUint64(x[:], bb.salt)
@@ -57,7 +57,7 @@ func (bb *BBHash) MarshalBinary(w io.Writer) error {
 	}
 
 	// Now, write the bitvectors themselves
-	for _, bv := range bb.bits {
+	for _, bv := range bb.Bits {
 		err = bv.MarshalBinary(w)
 		if err != nil {
 			return err
@@ -74,7 +74,7 @@ func (bb *BBHash) MarshalBinary(w io.Writer) error {
 func (bb *BBHash) MarshalBinarySize() uint64 {
 	var z uint64 = 4 * 8 // header
 
-	for _, bv := range bb.bits {
+	for _, bv := range bb.Bits {
 		z += bv.MarshalBinarySize()
 	}
 	return z
@@ -103,7 +103,7 @@ func UnmarshalBBHash(r io.Reader) (*BBHash, error) {
 	}
 
 	bb := &BBHash{
-		bits: make([]*bitVector, v),
+		Bits: make([]*bitVector, v),
 		salt: le.Uint64(b[16:24]),
 	}
 
@@ -113,7 +113,7 @@ func UnmarshalBBHash(r io.Reader) (*BBHash, error) {
 			return nil, err
 		}
 
-		bb.bits[i] = bv
+		bb.Bits[i] = bv
 	}
 
 	bb.preComputeRank()

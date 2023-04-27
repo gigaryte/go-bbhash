@@ -136,7 +136,7 @@ func NewConcurrent(g float64, keys []uint64) (*BBHash, error) {
 // at the time of construction of the minimal-hash).
 // If the key is in the original key-set
 func (bb *BBHash) Find(k uint64) uint64 {
-	for lvl, bv := range bb.bits {
+	for lvl, bv := range bb.Bits {
 		i := hash(k, bb.salt, uint(lvl)) % bv.Size()
 
 		if !bv.IsSet(i) {
@@ -160,7 +160,7 @@ func (bb *BBHash) newState(nkeys int) *state {
 		bb:   bb,
 	}
 
-	//printf("bbhash: salt %#x, gamma %4.2f %d keys A %d bits", bb.salt, bb.g, nkeys, s.A.Size())
+	//printf("bbhash: salt %#x, gamma %4.2f %d keys A %d Bits", bb.salt, bb.g, nkeys, s.A.Size())
 	return s
 }
 
@@ -169,7 +169,7 @@ func (s *state) singleThread(keys []uint64) error {
 	A := s.A
 
 	for {
-		//printf("lvl %d: %d keys A %d bits", s.lvl, len(keys), A.Size())
+		//printf("lvl %d: %d keys A %d Bits", s.lvl, len(keys), A.Size())
 		preprocess(s, keys)
 		A.Reset()
 		assign(s, keys)
@@ -187,7 +187,7 @@ func (s *state) singleThread(keys []uint64) error {
 	return nil
 }
 
-// pre-process to detect colliding bits
+// pre-process to detect colliding Bits
 func preprocess(s *state, keys []uint64) {
 	A := s.A
 	coll := s.coll
@@ -209,7 +209,7 @@ func preprocess(s *state, keys []uint64) {
 	}
 }
 
-// phase-2 -- assign non-colliding bits; this too can be concurrentized
+// phase-2 -- assign non-colliding Bits; this too can be concurrentized
 // the redo-list can be local until we finish scanning all the keys.
 // XXX "A" could also be kept local and finally merged via bitwise-union.
 func assign(s *state, keys []uint64) {
@@ -242,12 +242,12 @@ func (s *state) appendRedo(k []uint64) {
 	s.Unlock()
 }
 
-// append the current A to the bits vector and begin new iteration
+// append the current A to the Bits vector and begin new iteration
 // return new keys and a new A.
 // NB: This is *always* called from a single-threaded context
 //     (i.e., synchronization point).
 func (s *state) nextLevel() ([]uint64, *bitVector) {
-	s.bb.bits = append(s.bb.bits, s.A)
+	s.bb.Bits = append(s.bb.Bits, s.A)
 	s.A = nil
 
 	//printf("lvl %d: next-step: remaining: %d keys", s.lvl, len(s.redo))
@@ -267,11 +267,11 @@ func (s *state) nextLevel() ([]uint64, *bitVector) {
 func (bb BBHash) String() string {
 	var b bytes.Buffer
 
-	b.WriteString(fmt.Sprintf("BBHash: salt %#x; %d levels\n", bb.salt, len(bb.bits)))
+	b.WriteString(fmt.Sprintf("BBHash: salt %#x; %d levels\n", bb.salt, len(bb.Bits)))
 
-	for i, bv := range bb.bits {
+	for i, bv := range bb.Bits {
 		sz := humansize(bv.Words() * 8)
-		b.WriteString(fmt.Sprintf("  %d: %d bits (%s)\n", i, bv.Size(), sz))
+		b.WriteString(fmt.Sprintf("  %d: %d Bits (%s)\n", i, bv.Size(), sz))
 	}
 
 	return b.String()
@@ -280,11 +280,11 @@ func (bb BBHash) String() string {
 // Precompute ranks for each level so we can answer queries quickly.
 func (bb *BBHash) preComputeRank() {
 	var pop uint64
-	bb.ranks = make([]uint64, len(bb.bits))
+	bb.ranks = make([]uint64, len(bb.Bits))
 
 	// We omit the first level in rank calculation; this avoids a special
 	// case in Find() when we are looking at elements in level-0.
-	for l, bv := range bb.bits {
+	for l, bv := range bb.Bits {
 		bb.ranks[l] = pop
 		pop += bv.ComputeRank()
 	}
