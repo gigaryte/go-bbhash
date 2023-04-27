@@ -1,4 +1,4 @@
-module github.com/opencoff/go-bbhash
+module github.com/gigaryte/go-bbhash
 
 go 1.12
 
